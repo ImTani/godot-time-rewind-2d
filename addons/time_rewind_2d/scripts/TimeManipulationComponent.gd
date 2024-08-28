@@ -1,3 +1,5 @@
+@icon("res://addons/time_rewind_2d/essentials/icon.svg")
+
 # Script responsible for handling time manipulation for a 2D body
 extends Node
 class_name TimeManipulationComponent
@@ -10,7 +12,7 @@ class_name TimeManipulationComponent
 # Settings group
 @export_subgroup("Settings")
 @export_range(1, 10, 1, "suffix:sec") var rewind_time: float = 3 ## Duration of time that can be rewound, in seconds
-@export var rewindable_properties: Array[String] ## Properties of the body that can be rewound
+@export var rewindable_properties: Array[String] = ["global_position"] ## Properties of the body that can be rewound
 
 # On ready variables initialized when the script is ready
 @onready var max_values_stored = rewind_time * Engine.physics_ticks_per_second ## Maximum number of values to store for rewind
@@ -21,14 +23,32 @@ var rewind_values: Dictionary = {} ## Dictionary to store rewind values for prop
 
 # Initialization function
 func _ready() -> void:
+	if not body:
+		push_error("TimeManipulationComponent: 'body' is not assigned.")
+		return
+		
+	if not collision_shape:
+		push_error("TimeManipulationComponent: 'collision_shape' is not assigned.")
+		return
+		
+	if rewind_time <= 0:
+		push_error("TimeManipulationComponent: 'rewind_time' must be greater than 0.")
+		return
+		
+	if rewindable_properties.is_empty():
+		push_warning("TimeManipulationComponent: 'rewindable_properties' is empty. No properties will be rewound.")
+		
 	for property in rewindable_properties:
+		if not body.has_method("get_" + property):
+			push_warning("TimeManipulationComponent: Property '" + property + "' does not exist on the body.")
 		# Initialize lists for each rewindable property
 		rewind_values[property] = []
 
 	# Connect rewind start signal
-	rewind_manager.connect("rewind_started", _on_rewind_started)
-	# Connect rewind stop signal
-	rewind_manager.connect("rewind_stopped", _on_rewind_stopped)
+	if not rewind_manager.connect("rewind_started", _on_rewind_started):
+		push_error("TimeManipulationComponent: Failed to connect 'rewind_started' signal.")
+	if not rewind_manager.connect("rewind_stopped", _on_rewind_stopped):
+		push_error("TimeManipulationComponent: Failed to connect 'rewind_stopped' signal.")
 
 # Called every physics frame
 func _physics_process(delta: float) -> void:
@@ -37,11 +57,13 @@ func _physics_process(delta: float) -> void:
 		_store_current_values()
 	else:
 		# Rewind properties when rewinding
-		_rewind_process(delta) 
+		_rewind_process(delta)
 
 # Stores the current values of the rewindable properties
 func _store_current_values() -> void:
-	
+	if rewindable_properties.is_empty():
+		return
+
 	# Remove the oldest values if the max limit is reached	
 	if rewind_values[rewindable_properties[0]].size() >= max_values_stored:
 		for key in rewind_values.keys():
@@ -50,10 +72,15 @@ func _store_current_values() -> void:
 	# Store the current value of the property
 	for property in rewindable_properties:
 		var value = get_nested_property(body, property)
+		if value == null:
+			push_warning("TimeManipulationComponent: Property '" + property + "' could not be retrieved from the body.")
 		rewind_values[property].append(value)
 
 # Rewinds the properties to previous values
 func _rewind_process(delta: float) -> void:
+	if rewindable_properties.is_empty():
+		return
+		
 	# Stop rewind if there are no values left
 	if rewind_values[rewindable_properties[0]].is_empty():
 		rewind_manager.stop_rewind() 
@@ -61,6 +88,9 @@ func _rewind_process(delta: float) -> void:
 
 	# Set the property to a previous value
 	for property in rewindable_properties:
+		if rewind_values[property].is_empty():
+			push_warning("TimeManipulationComponent: No more values to rewind for property '" + property + "'.")
+			continue
 		var value = rewind_values[property].pop_back()
 		set_nested_property(body, property, value)
 
@@ -69,18 +99,25 @@ func _on_rewind_started():
 	 # Disable collision during rewind
 	if collision_shape:
 		collision_shape.set_disabled.call_deferred(true)
+	else:
+		push_error("TimeManipulationComponent: 'collision_shape' is not valid when starting rewind.")
 
 # Called when rewind stops
 func _on_rewind_stopped():
 	# Re-enable collision after rewind
 	if collision_shape:
-		collision_shape.set_disabled.call_deferred(false) 
+		collision_shape.set_disabled.call_deferred(false)
+	else:
+		push_error("TimeManipulationComponent: 'collision_shape' is not valid when stopping rewind.")
 
 # Helper function to get a nested property from an object
 func get_nested_property(root: Object, path: String) -> Variant:
 	var current = root
 	var properties = path.split(".")
 	for property in properties:
+		if not current:
+			push_error("TimeManipulationComponent: Failed to retrieve property '" + path + "'.")
+			return null
 		current = current.get(property)
 	return current
 
@@ -89,5 +126,8 @@ func set_nested_property(root: Object, path: String, value: Variant) -> void:
 	var current = root
 	var properties = path.split(".")
 	for i in range(properties.size() - 1):
+		if not current:
+			push_error("TimeManipulationComponent: Failed to set property '" + path + "'.")
+			return
 		current = current.get(properties[i])
 	current.set(properties[-1], value)
