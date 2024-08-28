@@ -11,9 +11,7 @@ config_version=5
 [application]
 
 config/name="TimeRewindAddon"
-run/main_scene="res://world.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
-config/icon="res://icon.svg"
 
 [autoload]
 
