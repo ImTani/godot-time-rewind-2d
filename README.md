@@ -10,10 +10,23 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 - **Time Manipulation Area**: Modify the time scale when the player enters specific areas.
 
 ## Installation
-To install the plugin, see [Getting Started](docs/getting_started.md).
+
+1. **Download the Plugin**:
+   - Download the `TimeRewind2D` plugin from the Godot Asset Library or directly from the [GitHub repository](#).
+
+2. **Install the Plugin**:
+   - Extract the downloaded files into your project's `res://addons/` directory.
+   - Ensure the folder structure is as follows:
+     ```
+     res://addons/time_rewind_2d/
+     ```
+
+3. **Activate the Plugin**:
+   - Open your Godot project.
+   - Go to **Project** > **Project Settings** > **Plugins**.
+   - Find `TimeRewind2D` in the list and set it to **Active**.
 
 ## Usage
-For detailed usage examples, check out [Usage](docs/usage.md).
 
 ## License
 This plugin is licensed under the [MIT License](LICENSE).
