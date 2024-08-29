@@ -1,5 +1,7 @@
 @icon("res://addons/time_rewind_2d/essentials/icon.svg")
 
+#TODO: Add a menu in project settings for default rewind time on script.
+
 # Script responsible for handling time manipulation for a 2D body
 extends Node2D
 class_name TimeRewind2D
@@ -99,7 +101,7 @@ func _on_rewind_started():
 		collision_shape.set_disabled.call_deferred(true)
 	else:
 		push_error("TimeRewind2D: 'collision_shape' is not valid when starting rewind.")
-
+	
 # Called when rewind stops
 func _on_rewind_stopped():
 	# Re-enable collision after rewind
