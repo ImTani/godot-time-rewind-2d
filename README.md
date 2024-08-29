@@ -106,7 +106,7 @@ The `TimeManipulationArea` will allow you to create areas where the time scale c
 
 ## Examples
 
-- [Example Game (web build)](https://itch.io/embed-upload/11195751?color=c9009f)
+- [Playable Demo on Itch.io (Web Build)](https://infinitani.itch.io/time-manipulation)
 
 ## License
 

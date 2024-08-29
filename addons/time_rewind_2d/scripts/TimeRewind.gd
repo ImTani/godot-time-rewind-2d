@@ -1,7 +1,7 @@
 @icon("res://addons/time_rewind_2d/essentials/icon.svg")
 
 # Script responsible for handling time manipulation for a 2D body
-extends Node
+extends Node2D
 class_name TimeRewind2D
 
 # Nodes group
