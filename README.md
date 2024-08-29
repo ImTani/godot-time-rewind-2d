@@ -6,6 +6,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Documentation](#documentation)
   - [RewindManager](#rewindmanager)
   - [TimeRewind2D](#timerewind2d)
   - [TimeManipulationArea (WIP)](#timemanipulationarea)
@@ -38,6 +39,32 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 
 ## Usage
 
+1. **Enable the Plugin**: Once the `TimeRewind2D` plugin is enabled in your project, the `RewindManager` class becomes accessible as a singleton.
+ 
+2. **Configure Non-Rewindable Nodes**: For all nodes that you want to not be processed during the rewind (making it look like time has stopped for these nodes), in the `_ready()` function of your script, append the nodes into the `non_rewindables` array of the `RewindManager`. This ensures that these nodes will stop processing during the rewind.
+
+   ```gdscript
+   func _ready():
+       RewindManager.non_rewindables.append($YourNode)
+   ```
+
+3. **Add the TimeRewind2D Node**: Place the `TimeRewind2D` node into your scene. This node is responsible for handling the rewind process for the associated `body`.
+
+4. **Set Up the TimeRewind2D Node**:
+   - Assign the `body` export to the `Node2D` you want to rewind.
+   - Assign the `collision_shape` export to the corresponding `CollisionShape2D`.
+   - Set the `rewind_time` to the desired duration in seconds.
+   - Populate the `rewindable_properties` array with the properties of the `body` that you want to rewind (e.g., `"global_position"`, `"rotation_degrees"`).
+
+5. **Trigger the Rewind**: When you want to initiate the rewind during gameplay, simply call `RewindManager.start_rewind()`. This will rewind all nodes in the scene that have the `TimeRewind2D` node attached.
+
+   ```gdscript
+   func _on_some_event():
+       RewindManager.start_rewind()
+   ```
+
+## Documentation
+
 ### RewindManager
 
 The `RewindManager` is a singleton script that manages the global rewind process. It emits signals when rewinding starts and stops, and it controls which nodes should not be affected by the rewind.
@@ -67,9 +94,6 @@ The `TimeRewind2D` script is attached to nodes you wish to rewind. It records th
 - **Methods**:
   - `_store_current_values()`: Records the current values of the specified properties.
   - `_rewind_process(delta)`: Rewinds the properties to their previous values over time.
-
-- **Example Usage**:
-  - WIP
 
 - **Signals**:
   - The script connects to the `RewindManager` signals to start and stop the rewind process.
