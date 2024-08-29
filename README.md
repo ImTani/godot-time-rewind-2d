@@ -1,6 +1,6 @@
 # TimeRewind2D Plugin Documentation
 
-This plugin adds powerful time manipulation mechanics to your Godot projects, inspired by games like *Braid*. With this plugin, you can easily integrate features like rewinding time for specific objects and altering the game's time scale in designated areas.
+This plugin adds powerful time manipulation mechanics to your Godot projects, inspired by games like *Braid*. With this plugin, you can easily integrate features like rewinding time for specific objects and altering the game's time scale in designated areas. The plugin was originally made as a submission for [Mechanically Challenged](https://itch.io/jam/mechanically-challenged-august-2024).
 
 ## Table of Contents
 - [Features](#features)
@@ -103,6 +103,10 @@ The `TimeRewind2D` script is attached to nodes you wish to rewind. It records th
 *Note: This feature is currently a work in progress.*
 
 The `TimeManipulationArea` will allow you to create areas where the time scale can be altered, speeding up or slowing down the flow of time within that region.
+
+## Examples
+
+- [Example Game (web build)](https://itch.io/embed-upload/11195751?color=c9009f)
 
 ## License
 
