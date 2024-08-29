@@ -23,5 +23,3 @@ func _pause_non_rewindables(pause: bool) -> void:
 				node.process_mode = Node.PROCESS_MODE_DISABLED
 			else:
 				node.process_mode = Node.PROCESS_MODE_INHERIT
-		else:
-			non_rewindables.erase(node)
