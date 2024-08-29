@@ -108,6 +108,7 @@ The `TimeManipulationArea` will allow you to create areas where the time scale c
 
 - [Playable Demo on Itch.io (Web Build)](https://infinitani.itch.io/time-manipulation)
 
+
 ## License
 
 This plugin is licensed under the [MIT License](LICENSE). This means you are free to use, modify, and distribute the plugin as long as you include the original license file in any distribution.
