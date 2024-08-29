@@ -39,16 +39,14 @@ func _ready() -> void:
 		push_warning("TimeRewind2D: 'rewindable_properties' is empty. No properties will be rewound.")
 		
 	for property in rewindable_properties:
-		if not body.has_method("get_" + property):
-			push_warning("TimeRewind2D: Property '" + property + "' does not exist on the body.")
+		if get_nested_property(body, property) == null:
+			push_error("TimeRewind2D: Property '" + property + "' does not exist on the body.")
 		# Initialize lists for each rewindable property
 		rewind_values[property] = []
 
 	# Connect rewind start signal
-	if not rewind_manager.connect("rewind_started", _on_rewind_started):
-		push_error("TimeRewind2D: Failed to connect 'rewind_started' signal.")
-	if not rewind_manager.connect("rewind_stopped", _on_rewind_stopped):
-		push_error("TimeRewind2D: Failed to connect 'rewind_stopped' signal.")
+	rewind_manager.connect("rewind_stopped", _on_rewind_stopped)
+	rewind_manager.connect("rewind_started", _on_rewind_started)
 
 # Called every physics frame
 func _physics_process(delta: float) -> void:
@@ -73,7 +71,7 @@ func _store_current_values() -> void:
 	for property in rewindable_properties:
 		var value = get_nested_property(body, property)
 		if value == null:
-			push_warning("TimeRewind2D: Property '" + property + "' could not be retrieved from the body.")
+			return
 		rewind_values[property].append(value)
 
 # Rewinds the properties to previous values
