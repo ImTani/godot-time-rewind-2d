@@ -23,7 +23,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 ## Installation
 
 1. **Download the Plugin**:
-   - Download the `TimeRewind2D` plugin from the Godot Asset Library or directly from the [GitHub repository](#).
+   - Download the `TimeRewind2D` plugin from the Godot Asset Library or directly from the [GitHub repository](https://github.com/ImTani/godot-time-rewind-2d/releases).
 
 2. **Install the Plugin**:
    - Extract the downloaded files into your project's `res://addons/` directory.
