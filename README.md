@@ -37,7 +37,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
    - Go to **Project** > **Project Settings** > **Plugins**.
    - Find `TimeRewind2D` in the list and set it to **Active**.
 
-![TimeRewind2D Plugin Screenshot](https://raw.githubusercontent.com/infiniTani/time_rewind_2d/main/docs/images/plugin_screenshot.png)
+![TimeRewind2D Plugin Screenshot](https://raw.githubusercontent.com/ImTani/godot-time-rewind-2d/main/docs/media/plugin_window.png)
 
 ## Usage
 
@@ -58,7 +58,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
    - Set the `rewind_time` to the desired duration in seconds.
    - Populate the `rewindable_properties` array with the properties of the `body` that you want to rewind (e.g., `"global_position"`, `"rotation_degrees"`).
 
-  ![TimeRewind2D Node Screenshot](https://raw.githubusercontent.com/infiniTani/time_rewind_2d/main/docs/images/time_rewind_2d.png)
+  ![TimeRewind2D Node Screenshot](https://raw.githubusercontent.com/ImTani/godot-time-rewind-2d/main/docs/media/time_rewind_2d.png)
 
 5. **Trigger the Rewind**: When you want to initiate the rewind during gameplay, simply call `RewindManager.start_rewind()`. This will rewind all nodes in the scene that have the `TimeRewind2D` node attached.
 
