@@ -9,16 +9,16 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 - [Documentation](#documentation)
   - [RewindManager](#rewindmanager)
   - [TimeRewind2D](#timerewind2d)
-  - [TimeManipulationArea (WIP)](#timemanipulationarea)
+  - [TimeArea2D (WIP)](#TimeArea2D)
 - [License](#license)
 
 ## Features
 
 - **RewindManager**: This autoload script handles the global rewind process for your project. It manages when the rewind starts and stops, and it can pause other nodes that shouldn't be affected by the rewind.
   
-- **TimeRewind2D**: A node script that allows you to rewind specific properties of individual 2D bodies over a defined time. This is the core component of the plugin and is highly customizable.
+- **TimeRewind2D**: A node that allows you to rewind specific properties of individual 2D bodies over a defined time. This is the core component of the plugin and is highly customizable.
 
-- **TimeManipulationArea** (Work In Progress): This component will allow you to modify the time scale within specific areas of your game world, creating regions where time behaves differently.
+- **TimeArea2D** (Work In Progress): This component will allow you to modify the time scale within specific areas of your game world, creating regions where time behaves differently.
 
 ## Installation
 
@@ -36,6 +36,8 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
    - Open your Godot project.
    - Go to **Project** > **Project Settings** > **Plugins**.
    - Find `TimeRewind2D` in the list and set it to **Active**.
+
+![TimeRewind2D Plugin Screenshot](https://raw.githubusercontent.com/infiniTani/time_rewind_2d/main/docs/images/plugin_screenshot.png)
 
 ## Usage
 
@@ -55,6 +57,8 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
    - Assign the `collision_shape` export to the corresponding `CollisionShape2D`.
    - Set the `rewind_time` to the desired duration in seconds.
    - Populate the `rewindable_properties` array with the properties of the `body` that you want to rewind (e.g., `"global_position"`, `"rotation_degrees"`).
+
+  ![TimeRewind2D Node Screenshot](https://raw.githubusercontent.com/infiniTani/time_rewind_2d/main/docs/images/time_rewind_2d.png)
 
 5. **Trigger the Rewind**: When you want to initiate the rewind during gameplay, simply call `RewindManager.start_rewind()`. This will rewind all nodes in the scene that have the `TimeRewind2D` node attached.
 
@@ -98,11 +102,11 @@ The `TimeRewind2D` script is attached to nodes you wish to rewind. It records th
 - **Signals**:
   - The script connects to the `RewindManager` signals to start and stop the rewind process.
 
-### TimeManipulationArea (WIP)
+### TimeArea2D (WIP)
 
 *Note: This feature is currently a work in progress.*
 
-The `TimeManipulationArea` will allow you to create areas where the time scale can be altered, speeding up or slowing down the flow of time within that region.
+The `TimeArea2D` will allow you to create areas where the time scale can be altered, speeding up or slowing down the flow of time within that region.
 
 ## Examples
 
