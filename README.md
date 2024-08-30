@@ -43,7 +43,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 
 1. **Enable the Plugin**: Once the `TimeRewind2D` plugin is enabled in your project, the `RewindManager` class becomes accessible as a singleton.
  
-2. **Configure Non-Rewindable Nodes**: For all nodes that you want to not be processed during the rewind (making it look like time has stopped for these nodes), in the `_ready()` function of your script, append the nodes into the `non_rewindables` array of the `RewindManager`. This ensures that these nodes will stop processing during the rewind.
+2. **Configure Non-Rewindable Nodes** (optional): For all nodes that you want to not be processed during the rewind (making it look like time has stopped for these nodes), in the `_ready()` function of your script, append the nodes into the `non_rewindables` array of the `RewindManager`. This ensures that these nodes will stop processing during the rewind.
 
    ```gdscript
    func _ready():
