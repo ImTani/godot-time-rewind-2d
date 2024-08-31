@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsbnmwc8tftu8"]
+
+[ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/editor_dialog_open.gd" id="1_htasy"]
+[ext_resource type="PackedScene" uid="uid://wnhf7n1psauu" path="res://tree_holder.tscn" id="2_vd53f"]
+
+[node name="Test Scene" type="Node2D"]
+script = ExtResource("1_htasy")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+
+[node name="Property Selector" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_vd53f")]
+transient = true
+target = NodePath("../Player")
