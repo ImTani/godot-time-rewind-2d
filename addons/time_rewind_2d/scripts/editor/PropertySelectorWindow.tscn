@@ -1,27 +1,26 @@
-[gd_scene load_steps=4 format=3 uid="uid://wnhf7n1psauu"]
+[gd_scene load_steps=2 format=3 uid="uid://wnhf7n1psauu"]
 
 [ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/editor/property_selector.gd" id="1_pdkru"]
 
-[sub_resource type="Gradient" id="Gradient_rsoex"]
-offsets = PackedFloat32Array(1)
-colors = PackedColorArray(1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_xqwjx"]
-gradient = SubResource("Gradient_rsoex")
-width = 32
-height = 32
-fill_from = Vector2(0, 1)
-
-[node name="Property Selector Window" type="Window"]
-title = "Select Properties"
+[node name="Property Selector Window" type="PopupPanel"]
+title = "Edit Rewindable Properties"
 initial_position = 1
 size = Vector2i(800, 600)
-transient = true
+visible = true
+unresizable = false
+borderless = false
 script = ExtResource("1_pdkru")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-offset_right = 800.0
-offset_bottom = 600.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
@@ -48,10 +47,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Filter properties"
 
-[node name="ResetButton" type="TextureButton" parent="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-texture_normal = SubResource("GradientTexture2D_xqwjx")
-
 [node name="PropertiesTree" type="Tree" parent="MarginContainer/VBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -74,6 +69,5 @@ text = "Cancel	"
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="text_changed" from="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/SearchField" to="." method="_on_search_text_changed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Confirm" to="." method="_on_confirm_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Cancel" to="." method="_on_cancel_pressed"]
