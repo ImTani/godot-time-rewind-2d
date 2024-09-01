@@ -113,6 +113,10 @@ func _set_target():
 		populate_tree(target)
 		popup_centered()
 
+func _input(event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_cancel"):
+		queue_free()
+
 func _on_cancel_pressed() -> void:
 	queue_free()
 
@@ -124,6 +128,14 @@ func _on_confirm_pressed() -> void:
 	queue_free()
 
 func _on_reset_button_pressed() -> void:
+	var confirmation_dialog = ConfirmationDialog.new()
+	confirmation_dialog.title = "Confirm Reset"
+	confirmation_dialog.dialog_text = "Are you sure you want to reset the rewindable properties?"
+	confirmation_dialog.confirmed.connect(_reset_properties)
+	EditorInterface.popup_dialog_centered(confirmation_dialog)
+
+
+func _reset_properties() -> void:
 	parent_time_rewind_2d.rewindable_properties = []
 	var root_item: TreeItem = properties_tree.get_root()
 	if root_item:

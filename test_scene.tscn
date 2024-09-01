@@ -13,4 +13,4 @@ script = ExtResource("1_rcdlk")
 [node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_16lja")
 body = NodePath("../Player")
-rewindable_properties = ["name", "unique_name_in_owner", "process_mode", "process_thread_group", "editor_description"]
+rewind_time = 8.0

@@ -7,7 +7,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 	
 	object = object as TimeRewind2D
 	
-	if name == "rewind_time":
+	if name == "rewindable_properties":
 
 		var property_editor = EditorProperty.new()
 		
@@ -19,7 +19,10 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 		
 		add_property_editor(name, property_editor, true, "Rewindable Properties")
 	
-	return false
+		return true
+	
+	else:
+		return false
 
 func _open_property_selector_window(object: Object) -> void:
 	var property_selector = load("res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn").instantiate()
