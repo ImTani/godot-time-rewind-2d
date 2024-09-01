@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://dsbnmwc8tftu8"]
+[gd_scene load_steps=3 format=3 uid="uid://dsbnmwc8tftu8"]
 
 [ext_resource type="Script" path="res://test_scene.gd" id="1_rcdlk"]
-[ext_resource type="PackedScene" uid="uid://wnhf7n1psauu" path="res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn" id="2_vd53f"]
 [ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/TimeRewind.gd" id="3_16lja"]
 
 [node name="Test Scene" type="Node2D"]
@@ -11,10 +10,7 @@ script = ExtResource("1_rcdlk")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 
-[node name="Property Selector" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_vd53f")]
-target = NodePath("../Player")
-
 [node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_16lja")
 body = NodePath("../Player")
-rewindable_properties = ["global_position", "global_rotation", "global_rotation_degrees"]
+rewindable_properties = ["name", "unique_name_in_owner", "process_mode", "process_thread_group", "editor_description"]

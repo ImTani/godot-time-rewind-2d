@@ -122,3 +122,12 @@ func _on_close_requested() -> void:
 func _on_confirm_pressed() -> void:
 	_update_rewindable_properties()
 	queue_free()
+
+func _on_reset_button_pressed() -> void:
+	parent_time_rewind_2d.rewindable_properties = []
+	var root_item: TreeItem = properties_tree.get_root()
+	if root_item:
+		var child_item: TreeItem = root_item.get_first_child()
+		while child_item:
+			child_item.set_checked(0, false)
+			child_item = child_item.get_next()
