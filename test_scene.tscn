@@ -17,3 +17,4 @@ target = NodePath("../Player")
 [node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_16lja")
 body = NodePath("../Player")
+rewindable_properties = ["global_position", "global_rotation", "global_rotation_degrees"]

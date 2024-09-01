@@ -38,7 +38,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 8
 
-[node name="Create" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="Confirm" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Confirm"
@@ -50,4 +50,5 @@ text = "Cancel	"
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="text_changed" from="VBoxContainer/VBoxContainer/SearchField" to="." method="_on_search_text_changed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Confirm" to="." method="_on_confirm_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/Cancel" to="." method="_on_cancel_pressed"]

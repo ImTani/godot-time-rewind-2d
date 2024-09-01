@@ -15,7 +15,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 		button.text = "Edit Rewindable Properties"
 		property_editor.add_child(button)
 
-		button.pressed.connect(_open_property_selector_window.bind(object.body))
+		button.pressed.connect(_open_property_selector_window.bind(object))
 		
 		add_property_editor(name, property_editor, true, "Rewindable Properties")
 	
@@ -24,6 +24,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 func _open_property_selector_window(object: Object) -> void:
 	var property_selector = load("res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn").instantiate()
 
-	property_selector.target = object
+	property_selector.parent_time_rewind_2d = object
+	property_selector.target = object.body
 
 	EditorInterface.popup_dialog_centered(property_selector)
