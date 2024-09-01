@@ -14,7 +14,7 @@ extends Window
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
 
-var excluded_properties: Array[String] = ["owner", "multiplayer"]
+var excluded_properties: Array[String] = ["owner", "multiplayer", "script"]
 
 var parent_time_rewind_2d: TimeRewind2D
 
@@ -26,6 +26,8 @@ var parent_time_rewind_2d: TimeRewind2D
 var selected_item: String
 
 func _ready():
+
+	popup_window = false
 	# Clear the tree before populating
 	properties_tree.clear()
 	
@@ -120,11 +122,11 @@ func _input(event: InputEvent) -> void:
 func _on_cancel_pressed() -> void:
 	queue_free()
 
-func _on_close_requested() -> void:
-	queue_free()
-
 func _on_confirm_pressed() -> void:
 	_update_rewindable_properties()
+	queue_free()
+
+func _on_close_requested() -> void:
 	queue_free()
 
 func _reset_properties() -> void:

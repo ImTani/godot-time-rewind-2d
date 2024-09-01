@@ -3,8 +3,9 @@
 [ext_resource type="Script" path="res://test_scene.gd" id="1_rcdlk"]
 [ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/TimeRewind.gd" id="3_16lja"]
 
-[node name="Test Scene" type="Node2D"]
+[node name="Test Scene" type="Node2D" node_paths=PackedStringArray("animation_player")]
 script = ExtResource("1_rcdlk")
+animation_player = NodePath("AnimationPlayer")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
@@ -12,4 +13,4 @@ script = ExtResource("1_rcdlk")
 
 [node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_16lja")
-body = NodePath("../Player")
+body = NodePath("..")
