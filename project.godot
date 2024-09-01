@@ -17,6 +17,11 @@ config/features=PackedStringArray("4.3", "Mobile")
 
 RewindManager="*res://addons/time_rewind_2d/scripts/RewindManager.gd"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/time_rewind_2d/plugin.cfg")

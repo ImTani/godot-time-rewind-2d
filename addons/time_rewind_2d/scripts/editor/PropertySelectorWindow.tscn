@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://wnhf7n1psauu"]
+
+[ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/editor/property_selector.gd" id="1_pdkru"]
+
+[node name="Property Selector Window" type="Window"]
+title = "Select Properties"
+initial_position = 1
+size = Vector2i(800, 600)
+transient = true
+script = ExtResource("1_pdkru")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SearchField" type="LineEdit" parent="VBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Filter properties"
+
+[node name="PropertiesTree" type="Tree" parent="VBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+
+[node name="Create" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Confirm"
+
+[node name="Cancel" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cancel	"
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="text_changed" from="VBoxContainer/VBoxContainer/SearchField" to="." method="_on_search_text_changed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Cancel" to="." method="_on_cancel_pressed"]
