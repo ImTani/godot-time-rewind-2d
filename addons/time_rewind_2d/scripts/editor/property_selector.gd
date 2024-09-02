@@ -29,6 +29,8 @@ func _ready():
 
 	popup_window = false
 
+	search_field.right_icon = EditorInterface.get_editor_theme().get_icon("Search", "EditorIcons")
+
 	properties_tree.clear()
 	properties_tree.set_column_expand(0, true)
 	properties_tree.set_column_expand(1, false)
