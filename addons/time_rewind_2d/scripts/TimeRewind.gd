@@ -30,14 +30,13 @@ func _ready() -> void:
 		push_error("TimeRewind2D: 'body' is not assigned.")
 		return
 		
-	if not collision_shape:
-		push_error("TimeRewind2D: 'collision_shape' is not assigned.")
-		return
-		
 	if rewind_time <= 0:
 		push_error("TimeRewind2D: 'rewind_time' must be greater than 0.")
 		return
-		
+	
+	if not collision_shape:
+		push_warning("TimeRewind2D: 'collision_shape' is not assigned.")
+
 	if rewindable_properties.is_empty():
 		push_warning("TimeRewind2D: 'rewindable_properties' is empty. No properties will be rewound.")
 		
