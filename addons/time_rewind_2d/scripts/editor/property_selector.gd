@@ -71,20 +71,17 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 					var child_item = properties_tree.create_item(item)
 					var child_type: String = type_string(typeof(property_value))
 					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons")
-					
-					var child_cell_mode = TreeItem.CELL_MODE_CHECK
-					var child_editable = true
-					var child_text = property_name
-					var child_tooltip = child_type
-					
+
 					child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 					child_item.set_editable(0, true)
 					child_item.set_text(0, property_name)
 					child_item.set_tooltip_text(0, child_type)
 					child_item.set_icon(0, child_icon)
-
 					
 					if typeof(property_value) == TYPE_OBJECT and property_value != null:
+						if property_value == parent_time_rewind_2d.owner:
+							break
+
 						child_type = property_value.get_class()
 						child_item.set_text(0, property_name)
 						child_item.set_tooltip_text(0, child_type)
