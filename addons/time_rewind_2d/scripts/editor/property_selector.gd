@@ -14,7 +14,7 @@ extends Window
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
 
-var excluded_properties: Array[String] = ["owner", "multiplayer", "script"]
+var excluded_properties: Array[String] = ["owner", "multiplayer", "script", "rewindable_properties", "rewinding_properties"]
 
 var parent_time_rewind_2d: TimeRewind2D
 
