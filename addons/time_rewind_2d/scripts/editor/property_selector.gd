@@ -90,6 +90,8 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 						child_item.set_text(0, property_name + " (" + child_type + ")")
 						child_item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
 						child_item.set_icon(0, EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons"))
+
+						child_item.collapsed = true
 						
 						populate_tree(property_value, child_item, filter)
 

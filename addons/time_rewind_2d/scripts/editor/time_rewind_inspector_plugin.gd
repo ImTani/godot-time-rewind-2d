@@ -12,12 +12,12 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 		var property_editor = EditorProperty.new()
 		
 		var button = Button.new()
-		button.text = "Edit Rewindable Properties"
+		button.text = "Edit Rewinding Properties"
 		property_editor.add_child(button)
 
 		button.pressed.connect(_open_property_selector_window.bind(object))
 		
-		add_property_editor(name, property_editor, true, "Rewindable Properties")
+		add_property_editor(name, property_editor, true, "Rewinding Properties")
 	
 		return true
 	
