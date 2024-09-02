@@ -51,15 +51,8 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 
 		item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), "EditorIcons"))
 	else:
-		item = properties_tree.create_item(parent_item)
-		if node.has_method("get_name") and node.get_class() != "GDScript":
-			item.set_text(0, node.name)
-			item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
+		item = parent_item
 
-			item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), "EditorIcons"))
-		else:
-			item.set_text(0, "ProblemChild")
-			
 	var properties = node.get_property_list()
 	properties.sort_custom(_sort_properties_by_name)
 
@@ -76,23 +69,30 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 				if filter == "" or property_name.to_lower().find(filter.to_lower()) != -1:
 
 					var child_item = properties_tree.create_item(item)
-					var child_class: String = type_string(typeof(property_value))
-					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_class, "EditorIcons")
-					
-					if typeof(property_value) == TYPE_OBJECT and property_value != null:
-						populate_tree(property_value, child_item, filter)
+					var child_type: String = type_string(typeof(property_value))
+
+					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons")					
 
 					child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 					child_item.set_editable(0, true)
 					
 					child_item.set_text(0, property_name)
-					child_item.set_tooltip_text(0, child_class)
+					child_item.set_tooltip_text(0, child_type)
 					child_item.set_icon(0, child_icon)
 					
 					if child_item.get_text(0) in rewindable_properties:
 						child_item.set_checked(0, true)
 					else:
 						child_item.set_checked(0, false)
+					
+					if typeof(property_value) == TYPE_OBJECT and property_value != null:
+						child_type = property_value.get_class()
+						child_item.set_text(0, property_name + " (" + child_type + ")")
+						child_item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
+						child_item.set_icon(0, EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons"))
+						
+						populate_tree(property_value, child_item, filter)
+
 
 func _update_rewindable_properties() -> void:
 	var rewindable_properties = []
