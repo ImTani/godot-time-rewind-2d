@@ -37,6 +37,12 @@ func _ready():
 	
 	if target:
 		populate_tree(target)
+	else:
+		var warning_popup := AcceptDialog.new()
+		warning_popup.dialog_text = "No target node assigned. Please assign a target node."
+		warning_popup.title = "No Target Node"
+		warning_popup.get_ok_button().pressed.connect(queue_free)
+		EditorInterface.popup_dialog_centered(warning_popup)
 
 func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = ""):
 	var item: TreeItem
