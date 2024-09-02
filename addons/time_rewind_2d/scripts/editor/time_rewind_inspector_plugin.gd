@@ -19,7 +19,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 		
 		add_property_editor(name, property_editor, true, "Rewinding Properties")
 	
-		return true
+		return false
 	
 	else:
 		return false
