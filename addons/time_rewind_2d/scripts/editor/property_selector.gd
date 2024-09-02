@@ -65,27 +65,27 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 
 	var rewindable_properties = parent_time_rewind_2d.rewindable_properties
 	
-	for prop in properties:
-		if _is_property_valid(prop):
+	for property in properties:
+		if _is_property_valid(property):
 			
-			var prop_name = prop.name
-			var prop_value = node.get(prop_name)
+			var property_name = property.name
+			var property_value = node.get(property_name)
 
-			if prop_name not in excluded_properties:
+			if property_name not in excluded_properties:
 				
-				if filter == "" or prop_name.to_lower().find(filter.to_lower()) != -1:
+				if filter == "" or property_name.to_lower().find(filter.to_lower()) != -1:
 
 					var child_item = properties_tree.create_item(item)
-					var child_class: String = type_string(typeof(prop_value))
+					var child_class: String = type_string(typeof(property_value))
 					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_class, "EditorIcons")
 					
-					if typeof(prop_value) == TYPE_OBJECT and prop_value != null:
-						populate_tree(prop_value, child_item, filter)
+					if typeof(property_value) == TYPE_OBJECT and property_value != null:
+						populate_tree(property_value, child_item, filter)
 
 					child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 					child_item.set_editable(0, true)
 					
-					child_item.set_text(0, prop_name)
+					child_item.set_text(0, property_name)
 					child_item.set_tooltip_text(0, child_class)
 					child_item.set_icon(0, child_icon)
 					
@@ -148,8 +148,8 @@ func _reset_properties() -> void:
 			child_item.set_checked(0, false)
 			child_item = child_item.get_next()
 
-func _is_property_valid(prop: Dictionary) -> bool:
-	return not (prop.usage & PROPERTY_USAGE_CATEGORY) and not (prop.usage & PROPERTY_USAGE_SUBGROUP) and not (prop.usage & PROPERTY_USAGE_GROUP) and not (prop.usage & PROPERTY_USAGE_INTERNAL)
+func _is_property_valid(property: Dictionary) -> bool:
+	return not (property.usage & PROPERTY_USAGE_CATEGORY) and not (property.usage & PROPERTY_USAGE_SUBGROUP) and not (property.usage & PROPERTY_USAGE_GROUP) and not (property.usage & PROPERTY_USAGE_INTERNAL)
 
 func _sort_properties_by_name(a, b):
 	return a.name < b.name
