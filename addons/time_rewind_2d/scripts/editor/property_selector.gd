@@ -47,18 +47,26 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 	if parent_item == null:
 		item = properties_tree.create_item()
 		item.set_text(0, node.name)
+		item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
+
+		item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), "EditorIcons"))
 	else:
 		item = properties_tree.create_item(parent_item)
 		if node.has_method("get_name") and node.get_class() != "GDScript":
 			item.set_text(0, node.name)
+			item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
+
+			item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), "EditorIcons"))
 		else:
 			item.set_text(0, "ProblemChild")
 			
 	var properties = node.get_property_list()
+	properties.sort_custom(_sort_properties_by_name)
+
 	var rewindable_properties = parent_time_rewind_2d.rewindable_properties
 	
 	for prop in properties:
-		if not (prop.usage & PROPERTY_USAGE_CATEGORY) and not (prop.usage & PROPERTY_USAGE_SUBGROUP) and not (prop.usage & PROPERTY_USAGE_GROUP) and not (prop.usage & PROPERTY_USAGE_INTERNAL):
+		if _is_property_valid(prop):
 			
 			var prop_name = prop.name
 			var prop_value = node.get(prop_name)
@@ -66,23 +74,25 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 			if prop_name not in excluded_properties:
 				
 				if filter == "" or prop_name.to_lower().find(filter.to_lower()) != -1:
-					
+
 					var child_item = properties_tree.create_item(item)
 					var child_class: String = type_string(typeof(prop_value))
+					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_class, "EditorIcons")
 					
+					if typeof(prop_value) == TYPE_OBJECT and prop_value != null:
+						populate_tree(prop_value, child_item, filter)
+
 					child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 					child_item.set_editable(0, true)
 					
 					child_item.set_text(0, prop_name)
 					child_item.set_tooltip_text(0, child_class)
+					child_item.set_icon(0, child_icon)
 					
 					if child_item.get_text(0) in rewindable_properties:
 						child_item.set_checked(0, true)
 					else:
 						child_item.set_checked(0, false)
-
-					if typeof(prop_value) == TYPE_OBJECT and prop_value != null:
-						populate_tree(prop_value, child_item, filter)
 
 func _update_rewindable_properties() -> void:
 	var rewindable_properties = []
@@ -137,3 +147,9 @@ func _reset_properties() -> void:
 		while child_item:
 			child_item.set_checked(0, false)
 			child_item = child_item.get_next()
+
+func _is_property_valid(prop: Dictionary) -> bool:
+	return not (prop.usage & PROPERTY_USAGE_CATEGORY) and not (prop.usage & PROPERTY_USAGE_SUBGROUP) and not (prop.usage & PROPERTY_USAGE_GROUP) and not (prop.usage & PROPERTY_USAGE_INTERNAL)
+
+func _sort_properties_by_name(a, b):
+	return a.name < b.name
