@@ -1,6 +1,9 @@
 @tool
 extends Window
 
+# !WARNING: This script only reads exposed properties, fix.
+# !WARNING: some object references are fucking up, fixing.
+
 @export var summon_me: bool = false:
 	set(value):
 		if value:
@@ -14,9 +17,66 @@ extends Window
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
 
-var excluded_properties: Array[String] = ["owner", "multiplayer", "script"]
+var excluded_properties: Array[String] = [
+	"owner",
+	"multiplayer",
+	"script"
+]
+
+var advanced_properties: Array[String] = [
+    "auto_translate_mode",
+    "clip_children",
+    "collision_layer",
+    "collision_mask",
+    "collision_priority",
+    "disable_mode",
+    "editor_description",
+    "floor_block_on_wall",
+    "floor_constant_speed",
+    "floor_max_angle",
+    "floor_snap_length",
+    "floor_stop_on_slope",
+    "global_rotation_degrees",
+    "global_scale",
+    "global_skew",
+    "global_transform",
+    "input_pickable",
+    "light_mask",
+    "max_slides",
+    "motion_mode",
+    "name",
+    "physics_interpolation_mode",
+    "platform_floor_layers",
+    "platform_on_leave",
+    "platform_wall_layers",
+    "process_mode",
+    "process_physics_priority",
+    "process_priority",
+    "process_thread_group",
+    "process_thread_group_order",
+    "process_thread_messages",
+    "rotation_degrees",
+    "safe_margin",
+    "scene_file_path",
+    "scale",
+    "show_behind_parent",
+    "skew",
+    "slide_on_ceiling",
+    "texture_filter",
+    "texture_repeat",
+    "top_level",
+    "unique_name_in_owner",
+    "up_direction",
+    "use_parent_material",
+    "visibility_layer",
+    "wall_min_slide_angle",
+    "y_sort_enabled",
+    "z_as_relative",
+    "z_index"
+]
 
 var parent_time_rewind_2d: TimeRewind2D
+var show_advanced_properties: bool = false
 
 @export var target: Node:
 	set(value):
@@ -79,6 +139,9 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 	var rewindable_properties = parent_time_rewind_2d.rewindable_properties
 
 	for property in properties:
+
+		if not show_advanced_properties and property.name in advanced_properties:
+			continue
 
 		if _is_property_valid(property):
 			var property_name = property.name
