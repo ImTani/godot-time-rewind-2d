@@ -1,232 +1,157 @@
 @tool
 extends Window
 
-# !WARNING: This script only reads exposed properties, fix.
-# !WARNING: some object references are fucking up, fixing.
-
-@export var summon_me: bool = false:
-	set(value):
-		if value:
-			if Engine.is_editor_hint():
-				var new_window = load("res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn").instantiate()
-				new_window.target = target
-				EditorInterface.popup_dialog_centered(new_window)
-
-			summon_me = false
-
-@onready var properties_tree: Tree = %PropertiesTree
-@onready var search_field: LineEdit = %SearchField
-
-var excluded_properties: Array[String] = [
+# Constants
+const EXCLUDED_PROPERTIES: Array[String] = [
 	"owner",
 	"multiplayer",
 	"script"
 ]
 
-var advanced_properties: Array[String] = [
-    "auto_translate_mode",
-    "clip_children",
-    "collision_layer",
-    "collision_mask",
-    "collision_priority",
-    "disable_mode",
-    "editor_description",
-    "floor_block_on_wall",
-    "floor_constant_speed",
-    "floor_max_angle",
-    "floor_snap_length",
-    "floor_stop_on_slope",
-    "global_rotation_degrees",
-    "global_scale",
-    "global_skew",
-    "global_transform",
-    "input_pickable",
-    "light_mask",
-    "max_slides",
-    "motion_mode",
-    "name",
-    "physics_interpolation_mode",
-    "platform_floor_layers",
-    "platform_on_leave",
-    "platform_wall_layers",
-    "process_mode",
-    "process_physics_priority",
-    "process_priority",
-    "process_thread_group",
-    "process_thread_group_order",
-    "process_thread_messages",
-    "rotation_degrees",
-    "safe_margin",
-    "scene_file_path",
-    "scale",
-    "show_behind_parent",
-    "skew",
-    "slide_on_ceiling",
-    "texture_filter",
-    "texture_repeat",
-    "top_level",
-    "unique_name_in_owner",
-    "up_direction",
-    "use_parent_material",
-    "visibility_layer",
-    "wall_min_slide_angle",
-    "y_sort_enabled",
-    "z_as_relative",
-    "z_index"
+const ADVANCED_PROPERTIES: Array[String] = [
+	"auto_translate_mode", "clip_children", "collision_layer", 
+	"collision_mask", "collision_priority", "disable_mode", 
+	"editor_description", "floor_block_on_wall", "floor_constant_speed", 
+	"floor_max_angle", "floor_snap_length", "floor_stop_on_slope", 
+	"global_rotation_degrees", "global_scale", "global_skew", 
+	"global_transform", "input_pickable", "light_mask", 
+	"max_slides", "motion_mode", "name", 
+	"physics_interpolation_mode", "platform_floor_layers", "platform_on_leave", 
+	"platform_wall_layers", "process_mode", "process_physics_priority", 
+	"process_priority", "process_thread_group", "process_thread_group_order", 
+	"process_thread_messages", "rotation_degrees", "safe_margin", 
+	"scene_file_path", "scale", "show_behind_parent", 
+	"skew", "slide_on_ceiling", "texture_filter", 
+	"texture_repeat", "top_level", "unique_name_in_owner", 
+	"up_direction", "use_parent_material", "visibility_layer", 
+	"wall_min_slide_angle", "y_sort_enabled", "z_as_relative", 
+	"z_index"
 ]
 
+# Error Messages
+const NO_TARGET_ERROR_MESSAGE: String = "No target node assigned. Please assign a target node."
+
+# Icons
+const SEARCH_ICON_NAME: String = "Search"
+const EDITOR_ICON_CATEGORY: String = "EditorIcons"
+const EDITOR_FONT_CATEGORY: String = "EditorFonts"
+
+# Other Constants
+const FILTER_PROPERTY_USAGE_MASK: int = PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP | PROPERTY_USAGE_GROUP | PROPERTY_USAGE_INTERNAL
+
+# Property Definitions
+@onready var properties_tree: Tree = %PropertiesTree
+@onready var search_field: LineEdit = %SearchField
+
 var parent_time_rewind_2d: TimeRewind2D
-var show_advanced_properties: bool = false
 
 @export var target: Node:
 	set(value):
 		target = value
-		_set_target()
 
-var selected_item: String
-
+# Initialization
 func _ready():
+	_setup_ui()
+	_initialize_properties_tree()
+	_check_target()
 
-	popup_window = false
+func _setup_ui():
+	search_field.right_icon = EditorInterface.get_editor_theme().get_icon(SEARCH_ICON_NAME, EDITOR_ICON_CATEGORY)
 
-	search_field.right_icon = EditorInterface.get_editor_theme().get_icon("Search", "EditorIcons")
-
+func _initialize_properties_tree():
 	properties_tree.clear()
 	properties_tree.set_column_expand(0, true)
 	properties_tree.set_column_expand(1, false)
-	
+
+func _check_target():
 	if target:
 		populate_tree(target)
 	else:
+		_display_no_target_warning()
+
+func _display_no_target_warning():
+	if parent_time_rewind_2d:
 		var warning_popup := AcceptDialog.new()
-		warning_popup.dialog_text = "No target node assigned. Please assign a target node."
+		warning_popup.dialog_text = NO_TARGET_ERROR_MESSAGE
 		warning_popup.title = "No Target Node"
 		warning_popup.get_ok_button().pressed.connect(queue_free)
 		EditorInterface.popup_dialog_centered(warning_popup)
 
+# Tree Population and Filtering
 func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = ""):
+	var item: TreeItem = _create_tree_item(node, parent_item)
+	var properties = _get_filtered_properties(node)
+	_add_properties_to_tree(properties, node, item, filter)
 
+func _create_tree_item(node: Object, parent_item: TreeItem) -> TreeItem:
 	var item: TreeItem
 
-	# If parent_item is null, it means we are adding the root item
 	if parent_item == null:
 		item = properties_tree.create_item()
 		item.set_text(0, node.name)
-		item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
-
-		item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), "EditorIcons"))
+		item.set_custom_font(0, get_theme_font("bold", EDITOR_FONT_CATEGORY))
+		item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), EDITOR_ICON_CATEGORY))
 	else:
 		item = parent_item
 
-	var properties = node.get_property_list()
+	return item
 
+func _get_filtered_properties(node: Object) -> Array[Dictionary]:
+	var properties = node.get_property_list()
 	var object_properties: Array[Dictionary] = []
 
 	for property in properties:
 		if property.type == TYPE_OBJECT:
 			object_properties.append(property)
-
-	for property in object_properties:
-		if property in properties:
+	
+	for property in properties:
+		if property in object_properties:
 			properties.erase(property)
 
 	properties.sort_custom(_sort_properties_by_name)
-
+	
 	properties.append_array(object_properties)
-
 	object_properties.clear()
 
+	return properties
+
+func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: TreeItem, filter: String):
 	var rewindable_properties = parent_time_rewind_2d.rewindable_properties
 
 	for property in properties:
-
-		if not show_advanced_properties and property.name in advanced_properties:
-			continue
-
 		if _is_property_valid(property):
 			var property_name = property.name
 			var property_value = node.get(property_name)
 
-			if property_name not in excluded_properties:
-					var child_item = properties_tree.create_item(item)
-					var child_type: String = type_string(typeof(property_value))
-					var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons")
+			if property_name not in EXCLUDED_PROPERTIES:
+				var child_item = _create_property_tree_item(property_name, property_value, item)
 
-					child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
-					child_item.set_editable(0, true)
-					child_item.set_text(0, property_name)
-					child_item.set_tooltip_text(0, child_type)
-					child_item.set_icon(0, child_icon)
-
-					if typeof(property_value) == TYPE_OBJECT and property_value != null:
-						if property_value == parent_time_rewind_2d.owner:
-							break
-
-						child_type = property_value.get_class()
-						child_item.set_text(0, property_name)
-						child_item.set_tooltip_text(0, child_type)
-						child_item.set_custom_font(0, get_theme_font("bold", "EditorFonts"))
-						child_item.set_icon(0, EditorInterface.get_editor_theme().get_icon(child_type, "EditorIcons"))
-
+				if typeof(property_value) == TYPE_OBJECT and property_value != null:
+					if property_value != parent_time_rewind_2d.owner:
 						child_item.collapsed = true
-
 						populate_tree(property_value, child_item, filter)
 
-					var full_property_name = _get_full_property_name(child_item)
+				_check_rewindable_property(child_item, property_name, rewindable_properties)
 
-					if full_property_name in rewindable_properties:
-						child_item.set_checked(0, true)
-					else:
-						child_item.set_checked(0, false)
+func _create_property_tree_item(property_name: String, property_value: Variant, parent_item: TreeItem) -> TreeItem:
+	var child_item = properties_tree.create_item(parent_item)
+	var child_type: String = type_string(typeof(property_value))
+	var child_icon: Texture2D = EditorInterface.get_editor_theme().get_icon(child_type, EDITOR_ICON_CATEGORY)
 
-func _filter_tree(filter: String) -> void:
-	var root_item: TreeItem = properties_tree.get_root()
-	var current_item: TreeItem = root_item.get_first_child()
+	child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
+	child_item.set_editable(0, true)
+	child_item.set_text(0, property_name)
+	child_item.set_tooltip_text(0, child_type)
+	child_item.set_icon(0, child_icon)
 
-	while current_item != null:
-		var full_property_name = _get_full_property_name(current_item)
+	return child_item
 
-		if filter in full_property_name or filter == "":
-			var parent = current_item.get_parent()
-			while parent.get_text(0) != root_item.get_text(0):
-				parent.set_collapsed(false)
-				parent.visible = true
+func _check_rewindable_property(child_item: TreeItem, property_name: String, rewindable_properties: Array):
+	var full_property_name = _get_full_property_name(child_item)
 
-				parent = parent.get_parent()
+	child_item.set_checked(0, full_property_name in rewindable_properties)
 
-			current_item.collapsed = false
-			current_item.visible = true
-
-		else:
-			current_item.collapsed = true
-			current_item.visible = false
-		
-		current_item = current_item.get_next_in_tree()
-
-func _update_rewindable_properties() -> void:
-	var rewindable_properties = []
-
-	var root_item: TreeItem = properties_tree.get_root()
-
-	if root_item:
-		var child_item: TreeItem = root_item.get_first_child()
-		while child_item:
-			if child_item.is_checked(0):
-				rewindable_properties.append(_get_full_property_name(child_item))
-
-			child_item = child_item.get_next_in_tree()
-
-	parent_time_rewind_2d.rewindable_properties = rewindable_properties
-
-func _reset_properties() -> void:
-	parent_time_rewind_2d.rewindable_properties = []
-	var root_item: TreeItem = properties_tree.get_root()
-	if root_item:
-		var child_item: TreeItem = root_item.get_first_child()
-		while child_item:
-			child_item.set_checked(0, false)
-			child_item = child_item.get_next()
-
+# Property and Tree Utility Functions
 func _get_full_property_name(item: TreeItem) -> String:
 	var names = []
 	var current_item = item
@@ -240,21 +165,50 @@ func _get_full_property_name(item: TreeItem) -> String:
 	return ".".join(names)
 
 func _is_property_valid(property: Dictionary) -> bool:
-	return not (property.usage & (PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP | PROPERTY_USAGE_GROUP | PROPERTY_USAGE_INTERNAL))
+	return not (property.usage & FILTER_PROPERTY_USAGE_MASK)
 
 func _sort_properties_by_name(a, b):
 	return a.name < b.name
 
+# Search and Filter Functionality
 func _on_search_text_changed(new_text: String):
-	# Save current checked states before filtering
 	var previous_checked_states = _get_current_checked_states()
-
 	_filter_tree(new_text)
-
-	# Restore checked states after filtering
 	_restore_checked_states(previous_checked_states)
 
-# Function to get the current checked states
+func _filter_tree(filter: String) -> void:
+	var root_item: TreeItem = properties_tree.get_root()
+	var current_item: TreeItem = root_item.get_first_child()
+
+	while current_item != null:
+		var full_property_name = _get_full_property_name(current_item)
+		_update_item_visibility(current_item, full_property_name, filter, root_item)
+		current_item = current_item.get_next_in_tree()
+
+func _update_item_visibility(current_item: TreeItem, full_property_name: String, filter: String, root_item: TreeItem):
+	if filter in full_property_name or filter == "":
+		var parent = current_item.get_parent()
+		while parent.get_text(0) != root_item.get_text(0):
+			parent.set_collapsed(false)
+			parent.visible = true
+			parent = parent.get_parent()
+
+		current_item.collapsed = false
+		current_item.visible = true
+	else:
+		current_item.collapsed = true
+		current_item.visible = false
+
+# State Management
+func _update_checked_states() -> void:
+	var root_item: TreeItem = properties_tree.get_root()
+
+	if root_item:
+		var child_item: TreeItem = root_item.get_first_child()
+		while child_item:
+			child_item.set_checked(0, false)
+			child_item = child_item.get_next_in_tree()
+
 func _get_current_checked_states() -> Dictionary:
 	var checked_states = {}
 	var root_item: TreeItem = properties_tree.get_root()
@@ -268,7 +222,6 @@ func _get_current_checked_states() -> Dictionary:
 
 	return checked_states
 
-# Function to restore the checked states
 func _restore_checked_states(checked_states: Dictionary) -> void:
 	var root_item: TreeItem = properties_tree.get_root()
 
@@ -280,11 +233,7 @@ func _restore_checked_states(checked_states: Dictionary) -> void:
 				child_item.set_checked(0, true)
 			child_item = child_item.get_next_in_tree()
 
-func _set_target():
-	if is_inside_tree():
-		populate_tree(target)
-		popup_centered()
-
+# User Input and Confirmation
 func _input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
 		queue_free()
@@ -298,3 +247,24 @@ func _on_confirm_pressed() -> void:
 
 func _on_close_requested() -> void:
 	queue_free()
+
+# Rewindable Properties Update
+func _update_rewindable_properties() -> void:
+	var rewindable_properties = []
+
+	var root_item: TreeItem = properties_tree.get_root()
+
+	if root_item:
+		var child_item: TreeItem = root_item.get_first_child()
+		while child_item:
+			if child_item.is_checked(0):
+				rewindable_properties.append(_get_full_property_name(child_item))
+			child_item = child_item.get_next_in_tree()
+
+	parent_time_rewind_2d.rewindable_properties = rewindable_properties
+
+# Reset Properties
+func _reset_properties() -> void:
+	parent_time_rewind_2d.rewindable_properties.clear()
+	_filter_tree(search_field.text)
+	_update_checked_states()
