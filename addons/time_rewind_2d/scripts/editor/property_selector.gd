@@ -14,7 +14,7 @@ extends Window
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
 
-var excluded_properties: Array[String] = ["owner", "multiplayer", "script", "rewindable_properties", "rewinding_properties"]
+var excluded_properties: Array[String] = ["owner", "multiplayer", "script"]
 
 var parent_time_rewind_2d: TimeRewind2D
 
@@ -45,6 +45,7 @@ func _ready():
 		EditorInterface.popup_dialog_centered(warning_popup)
 
 func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = ""):
+
 	var item: TreeItem
 
 	# If parent_item is null, it means we are adding the root item
@@ -58,11 +59,27 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 		item = parent_item
 
 	var properties = node.get_property_list()
+
+	var object_properties: Array[Dictionary] = []
+
+	for property in properties:
+		if property.type == TYPE_OBJECT:
+			object_properties.append(property)
+
+	for property in object_properties:
+		if property in properties:
+			properties.erase(property)
+
 	properties.sort_custom(_sort_properties_by_name)
+
+	properties.append_array(object_properties)
+
+	object_properties.clear()
 
 	var rewindable_properties = parent_time_rewind_2d.rewindable_properties
 
 	for property in properties:
+
 		if _is_property_valid(property):
 			var property_name = property.name
 			var property_value = node.get(property_name)
@@ -77,7 +94,7 @@ func populate_tree(node: Object, parent_item: TreeItem = null, filter: String = 
 					child_item.set_text(0, property_name)
 					child_item.set_tooltip_text(0, child_type)
 					child_item.set_icon(0, child_icon)
-					
+
 					if typeof(property_value) == TYPE_OBJECT and property_value != null:
 						if property_value == parent_time_rewind_2d.owner:
 							break
@@ -160,7 +177,7 @@ func _get_full_property_name(item: TreeItem) -> String:
 	return ".".join(names)
 
 func _is_property_valid(property: Dictionary) -> bool:
-	return not (property.usage & PROPERTY_USAGE_CATEGORY) and not (property.usage & PROPERTY_USAGE_SUBGROUP) and not (property.usage & PROPERTY_USAGE_GROUP) and not (property.usage & PROPERTY_USAGE_INTERNAL)
+	return not (property.usage & (PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP | PROPERTY_USAGE_GROUP | PROPERTY_USAGE_INTERNAL))
 
 func _sort_properties_by_name(a, b):
 	return a.name < b.name
