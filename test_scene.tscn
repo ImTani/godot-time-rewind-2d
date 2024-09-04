@@ -14,5 +14,6 @@ script = ExtResource("2_dhaci")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 
-[node name="TimeRewind2D" type="Node2D" parent="."]
+[node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_16lja")
+body = NodePath("..")
