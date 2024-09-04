@@ -41,7 +41,6 @@ var show_hidden_properties: bool = false
 
 # Initialization
 func _ready():
-
 	_setup_ui()
 	_initialize_properties_tree()
 	_check_target()
@@ -66,8 +65,9 @@ func _display_no_target_warning():
 		var warning_popup := AcceptDialog.new()
 		warning_popup.dialog_text = NO_TARGET_ERROR_MESSAGE
 		warning_popup.title = "No Target Node"
-		warning_popup.get_ok_button().pressed.connect(warning_popup.queue_free)
-		warning_popup.popup_centered()
+		warning_popup.confirmed.connect(queue_free)
+		warning_popup.canceled.connect(queue_free)
+		EditorInterface.popup_dialog_centered(warning_popup)
 
 # Tree Population and Filtering
 func _populate_tree(node: Object, parent_item: TreeItem = null, filter: String = "", property_name: String = ""):
