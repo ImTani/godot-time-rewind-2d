@@ -26,8 +26,6 @@ const EDITOR_ICON_CATEGORY: String = "EditorIcons"
 const EDITOR_FONT_CATEGORY: String = "EditorFonts"
 const FILTER_PROPERTY_USAGE_MASK: int = PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP | PROPERTY_USAGE_GROUP | PROPERTY_USAGE_INTERNAL
 
-var test_array_packed: PackedStringArray = ["test", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9"]
-
 # UI Elements
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
@@ -43,6 +41,7 @@ var show_hidden_properties: bool = false
 
 # Initialization
 func _ready():
+
 	_setup_ui()
 	_initialize_properties_tree()
 	_check_target()
