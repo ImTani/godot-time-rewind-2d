@@ -20,6 +20,7 @@ const HIDDEN_PROPERTIES: Array[String] = [
 	"global_transform"]
 
 const NO_TARGET_ERROR_MESSAGE: String = "No target node assigned. Please assign a target node."
+const BAD_TARGET_ERROR_MESSAGE: String = "Assigned target node can't be self. Please assign a different target node."
 const SEARCH_DEBOUNCE_TIME: float = 0.25
 const SEARCH_ICON_NAME: String = "Search"
 const EDITOR_ICON_CATEGORY: String = "EditorIcons"
@@ -32,10 +33,7 @@ const FILTER_PROPERTY_USAGE_MASK: int = PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE
 @onready var search_debounce_timer: Timer = %DebounceTimer
 
 var parent_time_rewind_2d: TimeRewind2D
-
-@export var target: Node:
-	set(value):
-		target = value
+var target: Node
 
 var show_hidden_properties: bool = false
 
@@ -59,6 +57,9 @@ func _initialize_properties_tree():
 ## Checks if a target node is assigned. If so, populates the properties tree; otherwise, displays a warning.
 func _check_target():
 	if target:
+		if target == parent_time_rewind_2d:
+			_display_bad_target_warning()
+			return
 		_populate_tree(target)
 	else:
 		_display_no_target_warning()
@@ -69,6 +70,16 @@ func _display_no_target_warning():
 		var warning_popup := AcceptDialog.new()
 		warning_popup.dialog_text = NO_TARGET_ERROR_MESSAGE
 		warning_popup.title = "No Target Node"
+		warning_popup.confirmed.connect(queue_free)
+		warning_popup.canceled.connect(queue_free)
+		EditorInterface.popup_dialog_centered(warning_popup)
+
+## Displays a warning dialog if assigned target node is the parent TimeRewind2D.
+func _display_bad_target_warning():
+	if parent_time_rewind_2d:
+		var warning_popup := AcceptDialog.new()
+		warning_popup.dialog_text = BAD_TARGET_ERROR_MESSAGE
+		warning_popup.title = "Bad Target Node"
 		warning_popup.confirmed.connect(queue_free)
 		warning_popup.canceled.connect(queue_free)
 		EditorInterface.popup_dialog_centered(warning_popup)
