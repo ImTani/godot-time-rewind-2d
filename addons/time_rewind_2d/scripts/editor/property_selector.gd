@@ -188,6 +188,9 @@ func _filter_tree(filter: String) -> void:
 		current_item = current_item.get_next_in_tree()
 
 func _update_item_visibility(current_item: TreeItem, full_property_name: String, filter: String, root_item: TreeItem):
+	if not show_hidden_properties and current_item.get_text(0) in HIDDEN_PROPERTIES:
+		return
+
 	if filter in full_property_name or filter == "":
 		_set_item_and_parents_visible(current_item, root_item, true)
 	else:
