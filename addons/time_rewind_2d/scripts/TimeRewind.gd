@@ -13,7 +13,7 @@ class_name TimeRewind2D
 
 # Settings group
 @export_subgroup("Settings")
-@export_range(1, 10, 1, "suffix:sec") var rewind_time: float = 3 ## Duration of time that can be rewound, in seconds
+@export_range(1, 10, 1, "suffix:sec") var rewind_time: float = _default_rewind_time ## Duration of time that can be rewound, in seconds
 
 @export var rewindable_properties: Array[String]
 
@@ -23,6 +23,10 @@ class_name TimeRewind2D
 
 # Internal variables for managing the rewind process
 var rewind_values: Dictionary = {} ## Dictionary to store rewind values for properties
+var _default_rewind_time: float
+
+func _enter_tree() -> void:
+	_default_rewind_time = ProjectSettings.get_setting("time_rewind_2d/configuration/default_rewind_time") 
 
 # Initialization function
 func _ready() -> void:
