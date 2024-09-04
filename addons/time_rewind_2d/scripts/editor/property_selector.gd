@@ -6,7 +6,7 @@ const EXCLUDED_PROPERTIES: Array[String] = [
 	"owner", "multiplayer", "script"
 ]
 
-const ADVANCED_PROPERTIES: Array[String] = [
+const HIDDEN_PROPERTIES: Array[String] = [
 	"auto_translate_mode", "clip_children", "collision_layer", 
 	"collision_mask", "collision_priority", "disable_mode", 
 	"editor_description", "floor_block_on_wall", "floor_constant_speed", 
@@ -71,15 +71,19 @@ func _display_no_target_warning():
 		warning_popup.popup_centered()
 
 # Tree Population and Filtering
-func _populate_tree(node: Object, parent_item: TreeItem = null, filter: String = ""):
-	var item := _create_tree_item(node, parent_item)
+func _populate_tree(node: Object, parent_item: TreeItem = null, filter: String = "", property_name: String = ""):
+	var item := _create_tree_item(node, parent_item, property_name)
 	var properties := _get_filtered_properties(node)
 	_add_properties_to_tree(properties, node, item, filter)
 
-func _create_tree_item(node: Object, parent_item: TreeItem) -> TreeItem:
+func _create_tree_item(node: Object, parent_item: TreeItem, property_name: String = "") -> TreeItem:
 	var item: TreeItem = parent_item if parent_item != null else properties_tree.create_item()
 	
-	item.set_text(0, node.name)
+	if property_name:
+		item.set_text(0, property_name)
+	else:
+		item.set_text(0, node.name)
+	
 	item.set_custom_font(0, get_theme_font("bold", EDITOR_FONT_CATEGORY))
 	item.set_icon(0, EditorInterface.get_editor_theme().get_icon(node.get_class(), EDITOR_ICON_CATEGORY))
 
@@ -119,7 +123,7 @@ func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: 
 				var child_item = _create_property_tree_item(property_name, property_value, item)
 				if typeof(property_value) == TYPE_OBJECT and property_value != null and property_value != parent_time_rewind_2d.owner:
 					child_item.collapsed = true
-					_populate_tree(property_value, child_item, filter)
+					_populate_tree(property_value, child_item, filter, property_name)
 				_check_rewindable_property(child_item, property_name, rewindable_properties)
 
 func _create_property_tree_item(property_name: String, property_value: Variant, parent_item: TreeItem) -> TreeItem:
@@ -130,7 +134,7 @@ func _create_property_tree_item(property_name: String, property_value: Variant, 
 	child_item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 	child_item.set_editable(0, true)
 	child_item.set_text(0, property_name)
-	child_item.set_tooltip_text(0, child_type)
+	child_item.set_tooltip_text(0, _get_full_property_name(child_item))
 	child_item.set_icon(0, child_icon)
 
 	return child_item
@@ -193,15 +197,6 @@ func _set_item_and_parents_visible(item: TreeItem, root_item: TreeItem, visibili
 	item.visible = visibility
 
 # State Management
-func _update_checked_states():
-	var root_item = properties_tree.get_root()
-
-	if root_item:
-		var child_item = root_item.get_first_child()
-		while child_item:
-			child_item.set_checked(0, false)
-			child_item = child_item.get_next_in_tree()
-
 func _get_current_checked_states() -> Dictionary:
 	var checked_states = {}
 	var root_item = properties_tree.get_root()
@@ -254,9 +249,3 @@ func _update_rewindable_properties():
 			child_item = child_item.get_next_in_tree()
 
 	parent_time_rewind_2d.rewindable_properties = rewindable_properties
-
-# Reset Properties
-func _reset_properties():
-	parent_time_rewind_2d.rewindable_properties.clear()
-	_filter_tree(search_field.text)
-	_update_checked_states()
