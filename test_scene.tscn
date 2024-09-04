@@ -4,11 +4,10 @@
 [ext_resource type="Script" path="res://player.gd" id="2_dhaci"]
 [ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/TimeRewind.gd" id="3_16lja"]
 
-[node name="Test Scene" type="Node2D" node_paths=PackedStringArray("tile_map_layer", "player", "animation_player")]
+[node name="Test Scene" type="Node2D" node_paths=PackedStringArray("tile_map_layer", "player")]
 script = ExtResource("1_rcdlk")
 tile_map_layer = NodePath("TileMapLayer")
 player = NodePath("Player")
-animation_player = NodePath("")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 script = ExtResource("2_dhaci")

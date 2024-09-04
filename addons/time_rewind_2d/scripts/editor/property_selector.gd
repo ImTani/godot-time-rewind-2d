@@ -7,24 +7,17 @@ const EXCLUDED_PROPERTIES: Array[String] = [
 ]
 
 const HIDDEN_PROPERTIES: Array[String] = [
-	"auto_translate_mode", "clip_children", "collision_layer", 
-	"collision_mask", "collision_priority", "disable_mode", 
-	"editor_description", "floor_block_on_wall", "floor_constant_speed", 
-	"floor_max_angle", "floor_snap_length", "floor_stop_on_slope", 
-	"global_rotation_degrees", "global_scale", "global_skew", 
-	"global_transform", "input_pickable", "light_mask", 
-	"max_slides", "motion_mode", "name", 
-	"physics_interpolation_mode", "platform_floor_layers", "platform_on_leave", 
-	"platform_wall_layers", "process_mode", "process_physics_priority", 
-	"process_priority", "process_thread_group", "process_thread_group_order", 
-	"process_thread_messages", "rotation_degrees", "safe_margin", 
-	"scene_file_path", "scale", "show_behind_parent", 
-	"skew", "slide_on_ceiling", "texture_filter", 
-	"texture_repeat", "top_level", "unique_name_in_owner", 
-	"up_direction", "use_parent_material", "visibility_layer", 
-	"wall_min_slide_angle", "y_sort_enabled", "z_as_relative", 
-	"z_index"
-]
+	"name", "unique_name_in_owner", "scene_file_path",
+	"process_mode", "process_priority", "process_physics_priority",
+	"process_thread_group", "process_thread_group_order", "process_thread_messages",
+	"physics_interpolation_mode", "auto_translate_mode", "editor_description",
+	"self_modulate", "show_behind_parent", "top_level",
+	"clip_children", "light_mask", "visibility_layer",
+	"z_index", "z_as_relative", "y_sort_enabled",
+	"texture_filter", "texture_repeat", "material",
+	"use_parent_material", "rotation_degrees", "skew",
+	"transform", "global_rotation_degrees", "global_skew",
+	"global_transform"]
 
 const NO_TARGET_ERROR_MESSAGE: String = "No target node assigned. Please assign a target node."
 const SEARCH_ICON_NAME: String = "Search"
@@ -42,8 +35,11 @@ var parent_time_rewind_2d: TimeRewind2D
 	set(value):
 		target = value
 
+var show_hidden_properties: bool = false
+
 # Initialization
 func _ready():
+
 	_setup_ui()
 	_initialize_properties_tree()
 	_check_target()
@@ -124,6 +120,8 @@ func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: 
 				if typeof(property_value) == TYPE_OBJECT and property_value != null and property_value != parent_time_rewind_2d.owner:
 					child_item.collapsed = true
 					_populate_tree(property_value, child_item, filter, property_name)
+				if property_name in HIDDEN_PROPERTIES and not show_hidden_properties:
+					child_item.visible = false
 				_check_rewindable_property(child_item, property_name, rewindable_properties)
 
 func _create_property_tree_item(property_name: String, property_value: Variant, parent_item: TreeItem) -> TreeItem:
@@ -219,6 +217,20 @@ func _restore_checked_states(checked_states: Dictionary):
 			var full_property_name = _get_full_property_name(child_item)
 			if full_property_name in checked_states:
 				child_item.set_checked(0, true)
+			child_item = child_item.get_next_in_tree()
+
+func _on_show_all_toggled(toggled_on:bool) -> void:
+	show_hidden_properties = toggled_on
+
+	var root_item = properties_tree.get_root()
+
+	if root_item:
+		var child_item = root_item.get_first_child()
+
+		while child_item != null:
+			if child_item.get_text(0) in HIDDEN_PROPERTIES:
+				child_item.visible = show_hidden_properties
+
 			child_item = child_item.get_next_in_tree()
 
 # User Input and Confirmation
