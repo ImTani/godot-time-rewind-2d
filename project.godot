@@ -29,3 +29,7 @@ enabled=PackedStringArray("res://addons/time_rewind_2d/plugin.cfg")
 [rendering]
 
 renderer/rendering_method="mobile"
+
+[time_rewind_2d]
+
+configuration/hidden_properties=["name", "unique_name_in_owner", "scene_file_path", "process_mode", "process_priority", "process_physics_priority", "process_thread_group", "process_thread_group_order", "process_thread_messages", "physics_interpolation_mode", "auto_translate_mode", "editor_description", "self_modulate", "show_behind_parent", "top_level", "clip_children", "light_mask", "visibility_layer", "z_index", "z_as_relative", "y_sort_enabled", "texture_filter", "texture_repeat", "material", "use_parent_material", "rotation_degrees", "skew", "transform", "global_rotation_degrees", "global_skew", "global_transform"]
