@@ -39,27 +39,31 @@ var parent_time_rewind_2d: TimeRewind2D
 
 var show_hidden_properties: bool = false
 
-# Initialization
+## Called when the node is added to the scene. Initializes the UI and checks for the target node.
 func _ready():
 	_setup_ui()
 	_initialize_properties_tree()
 	_check_target()
 
+## Sets up the UI elements, including the search field icon and debounce timer settings.
 func _setup_ui():
 	search_field.right_icon = EditorInterface.get_editor_theme().get_icon(SEARCH_ICON_NAME, EDITOR_ICON_CATEGORY)
 	search_debounce_timer.wait_time = SEARCH_DEBOUNCE_TIME
 
+## Initializes the properties tree by clearing it and setting column properties.
 func _initialize_properties_tree():
 	properties_tree.clear()
 	properties_tree.set_column_expand(0, true)
 	properties_tree.set_column_expand(1, false)
 
+## Checks if a target node is assigned. If so, populates the properties tree; otherwise, displays a warning.
 func _check_target():
 	if target:
 		_populate_tree(target)
 	else:
 		_display_no_target_warning()
 
+## Displays a warning dialog if no target node is assigned.
 func _display_no_target_warning():
 	if parent_time_rewind_2d:
 		var warning_popup := AcceptDialog.new()
@@ -69,12 +73,13 @@ func _display_no_target_warning():
 		warning_popup.canceled.connect(queue_free)
 		EditorInterface.popup_dialog_centered(warning_popup)
 
-# Tree Population and Filtering
+## Populates the properties tree with the properties of the given node, optionally filtered by a search string.
 func _populate_tree(node: Object, parent_item: TreeItem = null, filter: String = "", property_name: String = ""):
 	var item := _create_tree_item(node, parent_item, property_name)
 	var properties := _get_filtered_properties(node)
 	_add_properties_to_tree(properties, node, item, filter)
 
+## Creates a tree item for the given node or property, optionally setting a parent item and property name.
 func _create_tree_item(node: Object, parent_item: TreeItem, property_name: String = "") -> TreeItem:
 	var item: TreeItem = parent_item if parent_item != null else properties_tree.create_item()
 	
@@ -88,6 +93,7 @@ func _create_tree_item(node: Object, parent_item: TreeItem, property_name: Strin
 
 	return item
 
+## Retrieves and filters the properties of the given node, excluding certain property types.
 func _get_filtered_properties(node: Object) -> Array[Dictionary]:
 	if not node:
 		return []
@@ -108,6 +114,7 @@ func _get_filtered_properties(node: Object) -> Array[Dictionary]:
 
 	return properties
 
+## Adds the filtered properties to the tree, creating tree items and handling nested objects.
 func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: TreeItem, filter: String):
 	if not node or not item:
 		return
@@ -127,6 +134,7 @@ func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: 
 					child_item.visible = false
 				_check_rewindable_property(child_item, property_name, rewindable_properties)
 
+## Creates a tree item for a specific property, setting the property name, value, and other display options.
 func _create_property_tree_item(property_name: String, property_value: Variant, parent_item: TreeItem) -> TreeItem:
 	var child_item = properties_tree.create_item(parent_item)
 	var child_type: String = type_string(typeof(property_value))
@@ -140,11 +148,12 @@ func _create_property_tree_item(property_name: String, property_value: Variant, 
 
 	return child_item
 
+## Checks if a property is marked as rewindable and updates the tree item accordingly.
 func _check_rewindable_property(child_item: TreeItem, property_name: String, rewindable_properties: Array):
 	var full_property_name = _get_full_property_name(child_item)
 	child_item.set_checked(0, full_property_name in rewindable_properties)
 
-# Property and Tree Utility Functions
+## Retrieves the full property name by traversing the tree from the item up to the root.
 func _get_full_property_name(item: TreeItem) -> String:
 	if not item:
 		return ""
@@ -160,13 +169,15 @@ func _get_full_property_name(item: TreeItem) -> String:
 
 	return ".".join(names)
 
+## Determines if a property is valid based on its usage flags, excluding certain properties.
 func _is_property_valid(property: Dictionary) -> bool:
 	return not (property.usage & FILTER_PROPERTY_USAGE_MASK)
 
+## Sorts properties by their names. Used for ordering the properties in the tree.
 func _sort_properties_by_name(a, b):
 	return a.name < b.name
 
-# Search and Filter Functionality
+## Handles the text change event in the search field, filtering the tree based on the search text.
 func _on_search_text_changed(new_text: String):
 	if not search_debounce_timer.is_stopped():
 		search_debounce_timer.stop()
@@ -178,7 +189,8 @@ func _on_search_text_changed(new_text: String):
 	_filter_tree(new_text)
 	_restore_checked_states(previous_checked_states)
 
-func _filter_tree(filter: String) -> void:
+## Filters the tree items based on the provided filter text, updating their visibility.
+func _filter_tree(filter: String):
 	var root_item = properties_tree.get_root()
 	var current_item = root_item.get_first_child() if root_item else null
 
@@ -187,6 +199,7 @@ func _filter_tree(filter: String) -> void:
 		_update_item_visibility(current_item, full_property_name, filter, root_item)
 		current_item = current_item.get_next_in_tree()
 
+## Updates the visibility of a tree item and its parents based on the filter criteria.
 func _update_item_visibility(current_item: TreeItem, full_property_name: String, filter: String, root_item: TreeItem):
 	if not show_hidden_properties and current_item.get_text(0) in HIDDEN_PROPERTIES:
 		return
@@ -197,6 +210,7 @@ func _update_item_visibility(current_item: TreeItem, full_property_name: String,
 		current_item.collapsed = true
 		current_item.visible = false
 
+## Sets the visibility of a tree item and its parent items.
 func _set_item_and_parents_visible(item: TreeItem, root_item: TreeItem, visibility: bool):
 	var parent = item.get_parent()
 	while parent and parent != root_item:
@@ -206,7 +220,7 @@ func _set_item_and_parents_visible(item: TreeItem, root_item: TreeItem, visibili
 	item.collapsed = not visibility
 	item.visible = visibility
 
-# State Management
+## Retrieves the current checked states of the tree items, storing them in a dictionary.
 func _get_current_checked_states() -> Dictionary:
 	var checked_states = {}
 	var root_item = properties_tree.get_root()
@@ -220,6 +234,7 @@ func _get_current_checked_states() -> Dictionary:
 
 	return checked_states
 
+## Restores the checked states of the tree items based on the provided dictionary.
 func _restore_checked_states(checked_states: Dictionary):
 	var root_item = properties_tree.get_root()
 
@@ -231,7 +246,8 @@ func _restore_checked_states(checked_states: Dictionary):
 				child_item.set_checked(0, true)
 			child_item = child_item.get_next_in_tree()
 
-func _on_show_all_toggled(toggled_on:bool) -> void:
+## Toggles the visibility of hidden properties based on the user's input.
+func _on_show_all_toggled(toggled_on:bool):
 	show_hidden_properties = toggled_on
 
 	var root_item = properties_tree.get_root()
@@ -245,22 +261,25 @@ func _on_show_all_toggled(toggled_on:bool) -> void:
 
 			child_item = child_item.get_next_in_tree()
 
-# User Input and Confirmation
+## Handles user input events, closing the window if the cancel action is triggered.
 func _input(event: InputEvent):
 	if Input.is_action_just_pressed("ui_cancel"):
 		queue_free()
 
+## Closes the window when the cancel button is pressed.
 func _on_cancel_pressed():
 	queue_free()
 
+## Updates the rewindable properties and closes the window when the confirm button is pressed.
 func _on_confirm_pressed():
 	_update_rewindable_properties()
 	queue_free()
 
+## Closes the window when a close request is received.
 func _on_close_requested():
 	queue_free()
 
-# Rewindable Properties Update
+## Updates the list of rewindable properties based on the currently checked items in the tree.
 func _update_rewindable_properties():
 	var rewindable_properties = []
 	var root_item = properties_tree.get_root()
