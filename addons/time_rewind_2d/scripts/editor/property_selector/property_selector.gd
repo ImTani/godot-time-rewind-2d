@@ -6,6 +6,19 @@ const EXCLUDED_PROPERTIES: Array[String] = [
 	"owner", "multiplayer", "script"
 ]
 
+const HIDDEN_PROPERTIES: Array[String] = [
+	"name", "unique_name_in_owner", "scene_file_path",
+	"process_mode", "process_priority", "process_physics_priority",
+	"process_thread_group", "process_thread_group_order", "process_thread_messages",
+	"physics_interpolation_mode", "auto_translate_mode", "editor_description",
+	"self_modulate", "show_behind_parent", "top_level",
+	"clip_children", "light_mask", "visibility_layer",
+	"z_index", "z_as_relative", "y_sort_enabled",
+	"texture_filter", "texture_repeat", "material",
+	"use_parent_material", "rotation_degrees", "skew",
+	"transform", "global_rotation_degrees", "global_skew",
+	"global_transform"]
+
 const NO_TARGET_ERROR_MESSAGE: String = "No target node assigned. Please assign a target node."
 const SEARCH_DEBOUNCE_TIME: float = 0.25
 const SEARCH_ICON_NAME: String = "Search"
@@ -19,9 +32,6 @@ var test_array_packed: PackedStringArray = ["test", "test2", "test3", "test4", "
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
 @onready var search_debounce_timer: Timer = %DebounceTimer
-
-# Load Project Settings
-@onready var hidden_properties: Array = ProjectSettings.get_setting("time_rewind_2d/configuration/hidden_properties")
 
 var parent_time_rewind_2d: TimeRewind2D
 
@@ -114,7 +124,7 @@ func _add_properties_to_tree(properties: Array[Dictionary], node: Object, item: 
 				if typeof(property_value) == TYPE_OBJECT and property_value != null and property_value != parent_time_rewind_2d.owner:
 					child_item.collapsed = true
 					_populate_tree(property_value, child_item, filter, property_name)
-				if property_name in hidden_properties and not show_hidden_properties:
+				if property_name in HIDDEN_PROPERTIES and not show_hidden_properties:
 					child_item.visible = false
 				_check_rewindable_property(child_item, property_name, rewindable_properties)
 
@@ -179,9 +189,6 @@ func _filter_tree(filter: String) -> void:
 		current_item = current_item.get_next_in_tree()
 
 func _update_item_visibility(current_item: TreeItem, full_property_name: String, filter: String, root_item: TreeItem):
-	if not show_hidden_properties and current_item.get_text(0) in hidden_properties:
-		return
-
 	if filter in full_property_name or filter == "":
 		_set_item_and_parents_visible(current_item, root_item, true)
 	else:
@@ -231,7 +238,7 @@ func _on_show_all_toggled(toggled_on:bool) -> void:
 		var child_item = root_item.get_first_child()
 
 		while child_item != null:
-			if child_item.get_text(0) in hidden_properties:
+			if child_item.get_text(0) in HIDDEN_PROPERTIES:
 				child_item.visible = show_hidden_properties
 
 			child_item = child_item.get_next_in_tree()
