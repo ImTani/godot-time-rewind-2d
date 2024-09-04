@@ -23,7 +23,7 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
 ## Installation
 
 1. **Download the Plugin**:
-   - Download the `TimeRewind2D` plugin from the Godot Asset Library or directly from the [GitHub repository](https://github.com/ImTani/godot-time-rewind-2d/releases).
+   - Download the `TimeRewind2D` plugin from the Godot Asset Library or directly from the [Github Releases](https://github.com/ImTani/godot-time-rewind-2d/releases).
 
 2. **Install the Plugin**:
    - Extract the downloaded files into your project's `res://addons/` directory.
@@ -56,7 +56,9 @@ This plugin adds powerful time manipulation mechanics to your Godot projects, in
    - Assign the `body` export to the `Node2D` you want to rewind.
    - Assign the `collision_shape` export to the corresponding `CollisionShape2D`.
    - Set the `rewind_time` to the desired duration in seconds.
-   - Populate the `rewindable_properties` array with the properties of the `body` that you want to rewind (e.g., `"global_position"`, `"rotation_degrees"`).
+   - Click on `Edit Rewinding Properties` button in the inspector to open the property selector.
+   - Select all relevant properties through the selector.
+   - Click confirm to save the changes.
 
   ![TimeRewind2D Node Screenshot](https://raw.githubusercontent.com/ImTani/godot-time-rewind-2d/main/docs/media/time_rewind_2d.png)
 
