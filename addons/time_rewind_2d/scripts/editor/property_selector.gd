@@ -20,6 +20,7 @@ const HIDDEN_PROPERTIES: Array[String] = [
 	"global_transform"]
 
 const NO_TARGET_ERROR_MESSAGE: String = "No target node assigned. Please assign a target node."
+const SEARCH_DEBOUNCE_TIME: float = 0.25
 const SEARCH_ICON_NAME: String = "Search"
 const EDITOR_ICON_CATEGORY: String = "EditorIcons"
 const EDITOR_FONT_CATEGORY: String = "EditorFonts"
@@ -28,6 +29,7 @@ const FILTER_PROPERTY_USAGE_MASK: int = PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE
 # UI Elements
 @onready var properties_tree: Tree = %PropertiesTree
 @onready var search_field: LineEdit = %SearchField
+@onready var search_debounce_timer: Timer = %DebounceTimer
 
 var parent_time_rewind_2d: TimeRewind2D
 
@@ -46,6 +48,7 @@ func _ready():
 
 func _setup_ui():
 	search_field.right_icon = EditorInterface.get_editor_theme().get_icon(SEARCH_ICON_NAME, EDITOR_ICON_CATEGORY)
+	search_debounce_timer.wait_time = SEARCH_DEBOUNCE_TIME
 
 func _initialize_properties_tree():
 	properties_tree.clear()
@@ -165,6 +168,12 @@ func _sort_properties_by_name(a, b):
 
 # Search and Filter Functionality
 func _on_search_text_changed(new_text: String):
+	if not search_debounce_timer.is_stopped():
+		search_debounce_timer.stop()
+
+	search_debounce_timer.start()
+
+	await search_debounce_timer.timeout
 	var previous_checked_states = _get_current_checked_states()
 	_filter_tree(new_text)
 	_restore_checked_states(previous_checked_states)
