@@ -25,7 +25,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 		return false
 
 func _open_property_selector_window(object: Object) -> void:
-	var property_selector = load("res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn").instantiate()
+	var property_selector = load("res://addons/time_rewind_2d/scripts/editor/property_selector/PropertySelectorWindow.tscn").instantiate()
 
 	property_selector.parent_time_rewind_2d = object
 	property_selector.target = object.body
