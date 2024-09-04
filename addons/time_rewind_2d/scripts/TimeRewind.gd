@@ -14,7 +14,8 @@ class_name TimeRewind2D
 # Settings group
 @export_subgroup("Settings")
 @export_range(1, 10, 1, "suffix:sec") var rewind_time: float = 3 ## Duration of time that can be rewound, in seconds
-@export var rewindable_properties: Array[String] = ["global_position"] ## Properties of the body that can be rewound
+
+@export var rewindable_properties: Array[String]
 
 # On ready variables initialized when the script is ready
 @onready var max_values_stored = rewind_time * Engine.physics_ticks_per_second ## Maximum number of values to store for rewind
@@ -29,14 +30,13 @@ func _ready() -> void:
 		push_error("TimeRewind2D: 'body' is not assigned.")
 		return
 		
-	if not collision_shape:
-		push_error("TimeRewind2D: 'collision_shape' is not assigned.")
-		return
-		
 	if rewind_time <= 0:
 		push_error("TimeRewind2D: 'rewind_time' must be greater than 0.")
 		return
-		
+	
+	if not collision_shape:
+		push_warning("TimeRewind2D: 'collision_shape' is not assigned.")
+
 	if rewindable_properties.is_empty():
 		push_warning("TimeRewind2D: 'rewindable_properties' is empty. No properties will be rewound.")
 		
