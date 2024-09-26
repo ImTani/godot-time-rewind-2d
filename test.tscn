@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqoun1syopvvq"]
+
+[ext_resource type="Script" path="res://addons/time_rewind_2d/scripts/TimeRewind.gd" id="1_174mx"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+
+[node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("1_174mx")
+body = NodePath("../CanvasModulate")

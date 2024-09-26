@@ -1,14 +1,13 @@
+@tool
 extends EditorInspectorPlugin
 
+var property_selector: PropertySelectionWindow
+
 func _can_handle(object: Object) -> bool:
-	return object is TimeRewind2D
+	return object.get_script() and object.get_script().get_path().ends_with("TimeRewind.gd")
 
 func _parse_property(object: Object, type: Variant.Type, name: String, hint_type: PropertyHint, hint_string: String, usage_flags: int, wide: bool) -> bool:
-	
-	object = object as TimeRewind2D
-	
 	if name == "rewindable_properties":
-
 		var property_editor = EditorProperty.new()
 		
 		var button = Button.new()
@@ -17,17 +16,28 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 
 		button.pressed.connect(_open_property_selector_window.bind(object))
 		
-		add_property_editor(name, property_editor, true, "Rewinding Properties")
+		add_property_editor(name, property_editor, true)
 	
 		return true
 	
-	else:
-		return false
+	return false
 
-func _open_property_selector_window(object: Object) -> void:
-	var property_selector = load("res://addons/time_rewind_2d/scripts/editor/PropertySelectorWindow.tscn").instantiate()
+func _open_property_selector_window(time_rewind: Node2D) -> void:
+	if not is_instance_valid(time_rewind):
+		push_error("TimeRewind2D: 'time_rewind' is not a valid instance.")
+		return
+	
+	if not is_instance_valid(time_rewind.body):
+		push_error("TimeRewind2D: Cannot open property selection window. Body is not valid.")
+		return
 
-	property_selector.parent_time_rewind_2d = object
-	property_selector.target = object.body
+	property_selector = PropertySelectionWindow.new()
+	
+	var rewindable_properties = time_rewind.get("rewindable_properties")
+	if rewindable_properties == null:
+		rewindable_properties = []
 
-	EditorInterface.popup_dialog_centered(property_selector)
+	property_selector.create_window(time_rewind.body, rewindable_properties, false, -1, 
+		func(selected_properties: Array[String]):
+			time_rewind.set("rewindable_properties", selected_properties)
+	)
