@@ -23,6 +23,7 @@ func _parse_property(object: Object, type: Variant.Type, name: String, hint_type
 	return false
 
 func _open_property_selector_window(time_rewind: Node2D) -> void:
+
 	if not is_instance_valid(time_rewind):
 		push_error("TimeRewind2D: 'time_rewind' is not a valid instance.")
 		return

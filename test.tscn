@@ -12,4 +12,4 @@
 
 [node name="TimeRewind2D" type="Node2D" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("1_174mx")
-body = NodePath("../CanvasModulate")
+body = NodePath(".")
