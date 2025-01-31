@@ -23,6 +23,7 @@ class_name TimeRewind2D
 
 # Internal variables for managing the rewind process
 var rewind_values: Dictionary = {} ## Dictionary to store rewind values for properties
+var rewind_index: int ## Index to store the current position in the rewind_values array. Used for allowing re-play
 
 # Initialization function
 func _ready() -> void:
@@ -80,22 +81,28 @@ func _store_current_values() -> void:
 func _rewind_process(delta: float) -> void:
 	if rewindable_properties.is_empty():
 		return
-		
-	# Stop rewind if there are no values left
-	if rewind_values[rewindable_properties[0]].is_empty():
-		rewind_manager.stop_rewind() 
+	
+	rewind_index -= sign(delta)
+	
+	# Stop rewind if there are no values left, clearing the future buffer
+	if _is_rewind_exhausted_for_property(rewindable_properties[0]):
+		clear_future_buffer()
+		rewind_manager.stop_rewind()
 		return
-
+	
 	# Set the property to a previous value
 	for property in rewindable_properties:
-		if rewind_values[property].is_empty():
+		if _is_rewind_exhausted_for_property(property):
 			push_warning("TimeRewind2D: No more values to rewind for property '" + property + "'.")
 			continue
-		var value = rewind_values[property].pop_back()
-		set_nested_property(body, property, value)
+		
+		_set_rewind_property(property)
 
 # Called when rewind starts
 func _on_rewind_started():
+	# Update the rewind index to point to the latest available value
+	rewind_index = len(rewind_values[rewindable_properties[0]])
+	
 	 # Disable collision during rewind
 	if collision_shape:
 		collision_shape.set_disabled.call_deferred(true)
@@ -104,6 +111,8 @@ func _on_rewind_started():
 	
 # Called when rewind stops
 func _on_rewind_stopped():
+	clear_future_buffer()
+	
 	# Re-enable collision after rewind
 	if collision_shape:
 		collision_shape.set_disabled.call_deferred(false)
@@ -131,3 +140,30 @@ func set_nested_property(root: Object, path: String, value: Variant) -> void:
 			return
 		current = current.get(properties[i])
 	current.set(properties[-1], value)
+
+## Clear all items from [member rewind_values] which are equal to, or above
+## [member rewind_index].
+func clear_future_buffer():
+	# Set the property to a previous value
+	for property in rewindable_properties:
+		rewind_values[property] = rewind_values[property].slice(0, rewind_index)
+
+## Sets the value of [param property]. Prints a warning if no more values
+## are available
+func _set_rewind_property(property: String):
+	if !_is_rewind_exhausted_for_property(property):
+		var value = rewind_values[property][rewind_index]
+		set_nested_property(body, property, value)
+	else:
+		push_warning("TimeRewind2D: No more values to rewind for property '" + property + "'.")
+		return
+
+## Returns [code]true[/code] if [param property] no longer has values which can be rewinded.
+func _is_rewind_exhausted_for_property(property):
+	if rewind_values[property].is_empty():
+		return true
+	
+	var buffer_length = len(rewind_values[rewindable_properties[0]])
+	
+	if rewind_index <= 0 or rewind_index >= buffer_length:
+		return true
