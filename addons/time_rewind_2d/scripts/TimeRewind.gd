@@ -40,13 +40,21 @@ func _ready() -> void:
 
 	if rewindable_properties.is_empty():
 		push_warning("TimeRewind2D: 'rewindable_properties' is empty. No properties will be rewound.")
-		
+	
+	# Make the body pausable so it does not move of its own accord when
+	# a rewind is in progress
+	body.process_mode = Node.PROCESS_MODE_PAUSABLE
+	
+	# The TimeRewind2D node must still be processing so that it can rewind forward/back
+	# while the scene is paused
+	process_mode = PROCESS_MODE_ALWAYS
+	
 	for property in rewindable_properties:
 		if get_nested_property(body, property) == null:
 			push_error("TimeRewind2D: Property '" + property + "' does not exist on the body.")
 		# Initialize lists for each rewindable property
 		rewind_values[property] = []
-
+	
 	# Connect rewind start signal
 	rewind_manager.connect("rewind_stopped", _on_rewind_stopped)
 	rewind_manager.connect("rewind_started", _on_rewind_started)
@@ -58,7 +66,7 @@ func _physics_process(delta: float) -> void:
 		_store_current_values()
 	else:
 		# Rewind properties when rewinding
-		_rewind_process(delta)
+		_rewind_process(rewind_manager.rewind_speed)
 
 # Stores the current values of the rewindable properties
 func _store_current_values() -> void:
@@ -78,16 +86,19 @@ func _store_current_values() -> void:
 		rewind_values[property].append(value)
 
 # Rewinds the properties to previous values
-func _rewind_process(delta: float) -> void:
+func _rewind_process(frame_step: float) -> void:
 	if rewindable_properties.is_empty():
 		return
 	
-	rewind_index -= sign(delta)
+	if RewindManager.is_limit_reached:
+		return
+	
+	rewind_index += int(frame_step)
 	
 	# Stop rewind if there are no values left, clearing the future buffer
 	if _is_rewind_exhausted_for_property(rewindable_properties[0]):
-		clear_future_buffer()
-		rewind_manager.stop_rewind()
+		rewind_index = clampi(rewind_index, 0, len(rewind_values[rewindable_properties[0]]))
+		RewindManager.is_limit_reached = true
 		return
 	
 	# Set the property to a previous value
@@ -159,11 +170,10 @@ func _set_rewind_property(property: String):
 		return
 
 ## Returns [code]true[/code] if [param property] no longer has values which can be rewinded.
-func _is_rewind_exhausted_for_property(property):
+func _is_rewind_exhausted_for_property(property, idx: int = rewind_index):
 	if rewind_values[property].is_empty():
 		return true
 	
 	var buffer_length = len(rewind_values[rewindable_properties[0]])
-	
-	if rewind_index <= 0 or rewind_index >= buffer_length:
+	if idx <= 0 or idx >= buffer_length:
 		return true
